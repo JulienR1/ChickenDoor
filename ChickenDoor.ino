@@ -51,15 +51,15 @@ void goDown(){
 }
 
 float getLightVoltage(){
-  int sensorValue = analogRead(sensorPin);
-  int voltage = sensorValue * (3.0 / 1023.0);  
+  float sensorValue = analogRead(lightSensorPin);
+  float voltage = sensorValue * (3.0 / 1023.0);  
   return voltage;
 }
 
-void isHigh(){
+bool isHigh(){
   return digitalRead(upSensorPin) == HIGH;
 }
 
-void isLow(){
+bool isLow(){
   return digitalRead(lowSensorPin) == HIGH;
 }

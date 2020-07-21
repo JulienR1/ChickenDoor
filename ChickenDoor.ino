@@ -4,10 +4,11 @@ int lowSensorPin = 6;    // P1.7
 int upRelayPin = 9;      // P1.3
 int downRelayPin = 10;   // P1.2
 
-float dayThreshHold = 0.25;
-float nightTreshHold = 1.5;
+float dayThreshHold = 0.25;    // in volts
+float nightTreshHold = 1.5;    // in volts
 
-int doorMovementDelay = 250;
+int doorMovementDelay = 250;   // in ms
+int updateDelay = 900000;      // 15 mins in ms = 15*60*1000
 
 void setup() {
   pinMode(lightSensorPin, INPUT);
@@ -31,7 +32,7 @@ void loop(){
     goDown();
   }
 
-  delay(900000) // 15 minutes in ms = 60*15*1000
+  delay(updateDelay);
 }
 
 void goUp(){

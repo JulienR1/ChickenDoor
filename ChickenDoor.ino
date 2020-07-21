@@ -4,8 +4,8 @@ int lowSensorPin = 6;    // P1.7
 int upRelayPin = 9;      // P1.3
 int downRelayPin = 10;   // P1.2
 
-int dayThreshHold = 0.25;
-int nightTreshHold = 1.5;
+float dayThreshHold = 0.25;
+float nightTreshHold = 1.5;
 
 int doorMovementDelay = 250;
 

@@ -52,7 +52,7 @@ void goDown(){
 
 float getLightVoltage(){
   int sensorValue = analogRead(sensorPin);
-  float voltage = sensorValue * (3.0 / 1023.0);  
+  int voltage = sensorValue * (3.0 / 1023.0);  
   return voltage;
 }
 

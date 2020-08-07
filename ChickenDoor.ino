@@ -1,66 +1,80 @@
-int lightSensorPin = 2;  // P1.0
-int upSensorPin = 5;     // P1.6
-int lowSensorPin = 6;    // P1.7
-int upRelayPin = 9;      // P1.3
-int downRelayPin = 10;   // P1.2
-
-float dayThreshHold = 0.25;    // in volts
-float nightTreshHold = 1.5;    // in volts
+int lightSensorPin = A0;
+int upSensorPin = 2;
+int lowSensorPin = 3;
+int upRelayPin = 8;
+int downRelayPin = 9;
 
 int doorMovementDelay = 250;   // in ms
-int updateDelay = 900000;      // 15 mins in ms = 15*60*1000
+int updateDelay = 10000;      // 15 mins in ms = 15*60*1000
+
+int doorDirection = 0;  // -1: down, 0: up, 1: up
 
 void setup() {
+  setPins();
+  Serial.begin(9600);
+  resetDoor();
+}
+
+void loop(){
+  determineDoorDirection();
+  moveDoor();
+  waitForNextStep();
+}
+
+void setPins(){
   pinMode(lightSensorPin, INPUT);
   pinMode(upSensorPin, INPUT);
   pinMode(lowSensorPin, INPUT);
 
+  digitalWrite(upRelayPin, HIGH);
+  digitalWrite(downRelayPin, HIGH);
   pinMode(upRelayPin, OUTPUT);
   pinMode(downRelayPin, OUTPUT);
 }
 
-void loop(){
-  if(!isLow() && !isHigh()){
-    goDown();
+void resetDoor(){
+  if(!isUp() && !isDown()){
+    doorDirection = -1;
   }
-
-  float voltage = getLightVoltage();
-  if(isLow() && voltage < dayThreshHold){
-    goUp();
-  }
-  if(isHigh() && voltage > nightThreshHold){
-    goDown();
-  }
-
-  delay(updateDelay);
 }
 
-void goUp(){
-  while(!isHigh()){
-    digitalWrite(upRelayPin, HIGH);
+void determineDoorDirection(){
+  if(doorDirection == 0){
+    if(isDay() && !isUp()){
+      doorDirection = 1;
+    }else if(isNight() && !isDown()){
+      doorDirection = -1;
+    }
+  }else if((isDown() && doorDirection < 0) || (isUp() && doorDirection > 0)){
+    doorDirection = 0;
+  }
+}
+
+void moveDoor(){
+  digitalWrite(upRelayPin, doorDirection > 0 ? LOW : HIGH);
+  digitalWrite(downRelayPin, doorDirection < 0 ? LOW : HIGH);
+}
+
+void waitForNextStep(){
+  if(doorDirection == 0){
+    delay(updateDelay);
+  }else{
     delay(doorMovementDelay);
   }
-  digitalWrite(upRelayPin, LOW);
 }
 
-void goDown(){
-  while(!isLow()){
-    digitalWrite(downRelayPin, HIGH);
-    delay(doorMovementDelay);
-  }
-  digitalWrite(downRelayPin, LOW);
-}
-
-float getLightVoltage(){
-  float sensorValue = analogRead(lightSensorPin);
-  float voltage = sensorValue * (3.0 / 1023.0);  
-  return voltage;
-}
-
-bool isHigh(){
+bool isUp(){
   return digitalRead(upSensorPin) == HIGH;
 }
 
-bool isLow(){
+bool isDown(){
   return digitalRead(lowSensorPin) == HIGH;
+}
+
+bool isDay(){
+  return digitalRead(lightSensorPin) == LOW;
+}
+
+bool isNight(){
+  return !isDay();
 }

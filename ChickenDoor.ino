@@ -5,7 +5,7 @@ int upRelayPin = 8;
 int downRelayPin = 9;
 
 int doorMovementDelay = 250;   // in ms
-int updateDelay = 10000;      // 15 mins in ms = 10*1000
+int updateDelay = 10000;      // in ms
 
 int doorDirection = 0;  // -1: down, 0: up, 1: up
 
@@ -52,9 +52,11 @@ void determineDoorDirection(){
   if(doorDirection == 0){    
     if(daytime && !isUp()){
       doorDirection = 1;
+      unlockMovement();
       recordMovementStarted();      
     }else if(!daytime && !isDown()){
       doorDirection = -1;
+      unlockMovement();
       recordMovementStarted();
     }    
   }else if((isDown() && doorDirection < 0) || (isUp() && doorDirection > 0)){
@@ -66,6 +68,13 @@ void determineDoorDirection(){
 void moveDoor(){
   digitalWrite(upRelayPin, doorDirection > 0 ? LOW : HIGH);
   digitalWrite(downRelayPin, doorDirection < 0 ? LOW : HIGH);
+}
+
+// To unlock the motor if it was moved in the same direction manually previously
+void unlockMovement(){
+  digitalWrite(upRelayPin, doorDirection < 0 ? LOW : HIGH);
+  digitalWrite(downRelayPin, doorDirection > 0 ? LOW : HIGH);
+  delay(doorMovementDelay);
 }
 
 void waitForNextStep(){
